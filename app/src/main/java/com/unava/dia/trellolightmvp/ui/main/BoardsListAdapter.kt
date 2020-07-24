@@ -12,6 +12,7 @@ import com.unava.dia.trellolightmvp.utils.BoardDiffUtil
 
 class BoardsListAdapter(private val boards: MutableList<Board>) :
     RecyclerView.Adapter<BoardsListAdapter.CustomViewHolder>() {
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.board_list_item, null)
         return CustomViewHolder(view)

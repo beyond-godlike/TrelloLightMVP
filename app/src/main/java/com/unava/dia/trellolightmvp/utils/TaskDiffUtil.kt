@@ -4,24 +4,25 @@ import androidx.annotation.Nullable
 import androidx.recyclerview.widget.DiffUtil
 import com.unava.dia.trellolightmvp.api.entity.Task
 
-class TaskDiffUtil(internal var oldTaskList: List<Task>, internal var newTaskList: List<Task>) :
+class TaskDiffUtil(private var oldTaskList: List<Task>, private var newTaskList: List<Task>) :
     DiffUtil.Callback() {
-
-    override fun getOldListSize(): Int {
-        return oldTaskList.size
-    }
-
-    override fun getNewListSize(): Int {
-        return newTaskList.size
-    }
 
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
         return oldTaskList[oldItemPosition].id === newTaskList[newItemPosition].id
     }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldTaskList[oldItemPosition].equals(newTaskList[newItemPosition])
+        return oldTaskList[oldItemPosition] == newTaskList[newItemPosition]
     }
+
+    override fun getNewListSize(): Int {
+        return newTaskList.size
+    }
+
+    override fun getOldListSize(): Int {
+        return oldTaskList.size
+    }
+
 
     @Nullable
     override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {

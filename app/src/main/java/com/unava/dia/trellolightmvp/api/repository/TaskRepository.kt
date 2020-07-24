@@ -3,6 +3,7 @@ package com.unava.dia.trellolightmvp.api.repository
 
 import android.content.Context
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.unava.dia.trellolightmvp.api.AppDatabase
 import com.unava.dia.trellolightmvp.api.entity.Task
 import kotlinx.coroutines.*
@@ -17,6 +18,8 @@ class TaskRepository(context: Context) {
     private val scope = CoroutineScope(coroutineContext)
 
     private val db: AppDatabase = AppDatabase.getAppDataBase(context)!!
+
+    private val tasksLiveData: MutableLiveData<List<Task>> = MutableLiveData()
 
     fun getTasks() = db.taskDao().getTasks()
     fun getTask(id: Int) = db.taskDao().getTask(id)
@@ -46,8 +49,7 @@ class TaskRepository(context: Context) {
         scope.launch  { task?.let { db.taskDao().deleteTask(it) } }
     }
 
-
-    fun findRepositoriesForTask(boardId: Int): LiveData<List<Task>>? {
-        return db.taskDao().getTasksForBoard(boardId)
+    fun getTasksForBoardAsync(boardId: Int): List<Task>? = runBlocking(Dispatchers.Default) {
+        return@runBlocking async { db.taskDao().getTasksForBoard(boardId) }.await()
     }
 }

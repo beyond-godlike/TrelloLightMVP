@@ -19,7 +19,6 @@ class TrelloLightApp : MultiDexApplication(), HasActivityInjector {
     override fun onCreate() {
         super.onCreate()
         this.initDagger()
-        // TODO init db?
     }
 
     private fun initDagger() {

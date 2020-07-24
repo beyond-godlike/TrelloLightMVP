@@ -1,6 +1,7 @@
 package com.unava.dia.trellolightmvp.api.repository
 
 import android.content.Context
+import androidx.lifecycle.MutableLiveData
 import com.unava.dia.trellolightmvp.api.AppDatabase
 import com.unava.dia.trellolightmvp.api.entity.Board
 import kotlinx.coroutines.*
@@ -30,8 +31,8 @@ class BoardRepository(context: Context) {
         scope.launch  { db.boardDao().insertBoard(Board(title)) }
     }
 
-    fun insertBoard(board: Board) {
-        scope.launch  { db.boardDao().insertBoard(board) }
+    fun insertBoard(board: Board) : Long? = runBlocking(Dispatchers.Default) {
+        return@runBlocking async { db.boardDao().insertBoard(board) }.await()
     }
 
     fun updateBoard(board: Board) {

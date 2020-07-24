@@ -11,15 +11,15 @@ import com.unava.dia.trellolightmvp.api.entity.Task
 import com.unava.dia.trellolightmvp.utils.TaskDiffUtil
 
 class TasksListAdapter(private val tasks: MutableList<Task>) :
-    RecyclerView.Adapter<TasksListAdapter.CustomViewHolder>() {
+    RecyclerView.Adapter<TasksListAdapter.TasksListViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TasksListViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.task_list_item, parent, false)
         view.layoutParams = RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT)
-        return CustomViewHolder(view)
+        return TasksListViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: TasksListViewHolder, position: Int) {
         val task = getItem(position)
 
         holder.itemTitle.text = task.title
@@ -41,7 +41,7 @@ class TasksListAdapter(private val tasks: MutableList<Task>) :
         diffResult.dispatchUpdatesTo(this)
     }
 
-    class CustomViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class TasksListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val itemTitle: TextView = itemView.findViewById(R.id.tvTitle)
 
     }

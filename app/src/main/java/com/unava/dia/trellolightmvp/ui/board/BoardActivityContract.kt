@@ -10,6 +10,7 @@ import com.unava.dia.trellolightmvp.ui.base.BaseView
 
 interface BoardActivityContract {
     interface BoardActivityView : BaseView {
+        var boardId: Int?
         fun updateBoardsTitle(title: String)
         fun updateTaskList(list: List<Task>)
         fun setupRecyclerView()
@@ -26,6 +27,6 @@ interface BoardActivityContract {
 
         fun onBtSaveClicked(isNewBoard: Boolean, boardName: String, boardId: Int?)
         fun onBtDeleteClicked(boardId: Int)
-        fun onBtAddClicked(isNewBoard: Boolean, boardName: String)
+        fun onBtAddClicked(boardName: String)
     }
 }

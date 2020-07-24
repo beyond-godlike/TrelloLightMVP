@@ -1,10 +1,6 @@
 package com.unava.dia.trellolightmvp.ui.board
 
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.*
 import com.unava.dia.trellolightmvp.api.entity.Board
 import com.unava.dia.trellolightmvp.api.entity.Task
 import com.unava.dia.trellolightmvp.api.useCases.TasksUseCase
@@ -44,7 +40,6 @@ class BoardActivityPresenter(private var useCase: TasksUseCase) : BoardActivityC
 
     override fun loadUi(boardId: Int?) {
         if (boardId != null) {
-            getBoard(boardId)
             this.getBoard(boardId).observe(this,
                 Observer<Board> { b ->
                     if (b != null) {
@@ -52,10 +47,14 @@ class BoardActivityPresenter(private var useCase: TasksUseCase) : BoardActivityC
                     }
                 }
             )
-            // TODO wants boardId = intent.getIntExtra(BOARD_ID, 0)
-            this.findReposForTask(boardId)?.observe(this, Observer<List<Task>> { taskList ->
-                view?.updateTaskList(taskList)
-            })
+            val list = findTasksForBoard(boardId)
+            if (list != null) {
+                view?.updateTaskList(list)
+            }
+            else view?.showError("list = NULL")
+        }
+        else {
+            view?.showError("boardId = NULL")
         }
     }
 
@@ -82,12 +81,9 @@ class BoardActivityPresenter(private var useCase: TasksUseCase) : BoardActivityC
         this.useCase.deleteBoard(boardId)
     }
 
-    override fun onBtAddClicked(isNewBoard: Boolean, boardName: String) {
-        // save board if new
-        if (isNewBoard) {
-            this.insertBoard(boardName)
-            //TODO set boardId
-        }
+    override fun onBtAddClicked(boardName: String) {
+        val id = this.insertBoard(boardName)
+        view?.boardId = id?.toInt()
     }
 
     override fun findAllTasks(): LiveData<List<Task>>? {
@@ -102,12 +98,12 @@ class BoardActivityPresenter(private var useCase: TasksUseCase) : BoardActivityC
         this.useCase.updateBoard(board)
     }
 
-    private fun insertBoard(text: String) {
-        this.useCase.insertBoard(Board(text))
+    private fun insertBoard(text: String) : Long? {
+        return this.useCase.insertBoard(Board(text))
     }
 
-    private fun findReposForTask(boardId: Int) : LiveData<List<Task>>? {
-        return this.useCase.findRepositoriesForTask(boardId)
+     private fun findTasksForBoard(boardId: Int) : List<Task>? {
+        return this.useCase.getTasksForBoardAsync(boardId)
     }
 
 }

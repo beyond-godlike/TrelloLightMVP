@@ -1,6 +1,7 @@
 package com.unava.dia.trellolightmvp.api.useCases
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.unava.dia.trellolightmvp.api.entity.Board
 import com.unava.dia.trellolightmvp.api.entity.Task
 import com.unava.dia.trellolightmvp.api.repository.BoardRepository
@@ -28,11 +29,11 @@ class TasksUseCase @Inject constructor(
         boardRepository.updateBoard(board)
     }
 
-    fun insertBoard(board: Board) {
-        boardRepository.insertBoard(board)
+    fun insertBoard(board: Board) : Long? {
+        return boardRepository.insertBoard(board)
     }
 
-    fun findRepositoriesForTask(boardId: Int): LiveData<List<Task>>? {
-        return taskRepository.findRepositoriesForTask(boardId)
+    fun getTasksForBoardAsync(boardId: Int): List<Task>?  {
+        return taskRepository.getTasksForBoardAsync(boardId)
     }
 }

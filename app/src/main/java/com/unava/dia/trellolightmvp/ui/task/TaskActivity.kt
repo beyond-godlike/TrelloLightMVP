@@ -1,5 +1,6 @@
 package com.unava.dia.trellolightmvp.ui.task
 
+import android.app.Activity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -31,6 +32,7 @@ class TaskActivity : AppCompatActivity(), TaskActivityContract.TaskActivityView 
 
         btDelete.setOnClickListener {
             presenter.onBtDeleteClicked(taskfId)
+            setResult(RESULT_OK, intent)
             finish()
         }
         btDone.setOnClickListener {
@@ -40,6 +42,7 @@ class TaskActivity : AppCompatActivity(), TaskActivityContract.TaskActivityView 
                 etDesc!!.text.toString(),
                 boardId
             )
+            setResult(Activity.RESULT_OK, intent)
             finish()
         }
         presenter.loadUi(taskfId)

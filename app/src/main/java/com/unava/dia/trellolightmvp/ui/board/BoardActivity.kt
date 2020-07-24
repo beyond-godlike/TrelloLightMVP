@@ -1,5 +1,6 @@
 package com.unava.dia.trellolightmvp.ui.board
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -9,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.unava.dia.trellolightmvp.R
 import com.unava.dia.trellolightmvp.api.entity.Task
 import com.unava.dia.trellolightmvp.ui.task.TaskActivity
+import com.unava.dia.trellolightmvp.utils.AppConstants.Companion.ACTIVITY_REQUEST_CODE
 import com.unava.dia.trellolightmvp.utils.AppConstants.Companion.BOARD_ID
 import com.unava.dia.trellolightmvp.utils.AppConstants.Companion.NEW_BOARD
 import com.unava.dia.trellolightmvp.utils.AppConstants.Companion.TASK_ID
@@ -19,11 +21,11 @@ import javax.inject.Inject
 
 class BoardActivity : AppCompatActivity(), BoardActivityContract.BoardActivityView,
     RecyclerItemClickListener.OnRecyclerViewItemClickListener {
-
     @Inject
     lateinit var presenter: BoardActivityContract.BoardActivityPresenter
 
-    private var boardId: Int? = null
+    override var boardId: Int? = null
+    private var isNewBoard: Boolean = false
     private var tasksListAdapter: TasksListAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,9 +34,9 @@ class BoardActivity : AppCompatActivity(), BoardActivityContract.BoardActivityVi
         AndroidInjection.inject(this)
 
         boardId = intent.getIntExtra(BOARD_ID, 0)
+        isNewBoard = intent.getBooleanExtra(NEW_BOARD, false)
 
         btSaveBoard.setOnClickListener {
-            val isNewBoard = intent.getBooleanExtra(NEW_BOARD, false)
             presenter.onBtSaveClicked(isNewBoard, etBoardName!!.text.toString(), boardId)
             finish()
         }
@@ -43,17 +45,32 @@ class BoardActivity : AppCompatActivity(), BoardActivityContract.BoardActivityVi
             finish()
         }
         btAddCard.setOnClickListener {
-            val isNewBoard = intent.getBooleanExtra(NEW_BOARD, false)
-            presenter.onBtAddClicked(isNewBoard, etBoardName!!.text.toString())
+            // save board if new
+            if (isNewBoard) {
+                presenter.onBtAddClicked(etBoardName!!.text.toString())
+                isNewBoard = false
+            }
 
             val intent = Intent(this@BoardActivity, TaskActivity::class.java)
             intent.putExtra(BOARD_ID, boardId!!)
-            startActivity(intent)
+            startActivityForResult(intent, ACTIVITY_REQUEST_CODE)
         }
 
         presenter.attachView(this, lifecycle)
         lifecycle.addObserver(presenter)
         presenter.loadUi(boardId)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        intent.putExtra(BOARD_ID, boardId)
+        intent.putExtra(NEW_BOARD, isNewBoard)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+        super.onRestoreInstanceState(savedInstanceState)
+        boardId = intent.getIntExtra(BOARD_ID, 0)
+        isNewBoard = intent.getBooleanExtra(NEW_BOARD, false)
     }
 
     override fun updateBoardsTitle(title: String) {
@@ -72,8 +89,8 @@ class BoardActivity : AppCompatActivity(), BoardActivityContract.BoardActivityVi
     }
 
     override fun setupRecyclerView() {
-        rvBoard.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        rvBoard.addOnItemTouchListener(RecyclerItemClickListener(this, this))
+        rvBoard!!.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        rvBoard!!.addOnItemTouchListener(RecyclerItemClickListener(this, this))
     }
 
     override fun showError(message: String) {
@@ -85,7 +102,15 @@ class BoardActivity : AppCompatActivity(), BoardActivityContract.BoardActivityVi
         val task = tasksListAdapter!!.getItem(position)
         intent.putExtra(TASK_ID, task.id)
         intent.putExtra(BOARD_ID, boardId)
-        startActivity(intent)
+        startActivityForResult(intent, ACTIVITY_REQUEST_CODE)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == ACTIVITY_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            // because finish() doesn`t works properly. I`ts shitty yep
+            this.recreate()
+        }
     }
 
     override fun onDestroy() {
